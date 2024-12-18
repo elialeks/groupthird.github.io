@@ -9,8 +9,18 @@
             font-family: Arial, sans-serif;
             margin: 0;
             display: flex;
+            flex-direction: column;
             height: 100vh;
             background-color: #f4f4f4;
+        }
+
+        .game-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .left-panel, .right-panel {
+            overflow-y: auto; /* Ensure independent scrolling */
         }
 
         .left-panel {
@@ -21,13 +31,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-y: auto;
         }
 
         .right-panel {
             width: 70%;
             padding: 20px;
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -56,14 +64,14 @@
             border-color: #388e3c;
         }
 
-        .event-slot {
-            margin-top: 10px;
-            background-color: #d3f9d8;
+        .incorrect-message {
+            color: red;
             font-size: 14px;
-            border: 1px solid #388e3c;
-            border-radius: 5px;
-            padding: 5px;
-            text-align: center;
+            position: absolute;
+            top: -25px; /* Moved above the date box */
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
         }
 
         .event-box {
@@ -81,18 +89,20 @@
             transform: scale(1.05);
         }
 
-        .button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .win-message {
+            color: green;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
             margin-top: 20px;
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none; /* Initially hidden */
         }
 
-        /* Mobile-friendly */
+        /* Mobile-friendly adjustments */
         @media (max-width: 600px) {
             .left-panel {
                 width: 40%;
@@ -110,113 +120,135 @@
     </style>
 </head>
 <body>
-    <div class="left-panel">
-        <h2>Years</h2>
-        <div id="dates" class="dates">
-            <!-- Dates will be added dynamically -->
+    <div class="game-container">
+        <div class="left-panel">
+            <h2>Years</h2>
+            <div id="dates" class="dates"></div>
+        </div>
+
+        <div class="right-panel">
+            <h2>Events</h2>
+            <div id="events" class="events"></div>
         </div>
     </div>
 
-    <div class="right-panel">
-        <h2>Events</h2>
-        <div id="events" class="events">
-            <!-- Events will be added dynamically -->
-        </div>
-        <button class="button" onclick="shuffleEvents()">Shuffle</button>
-    </div>
+    <div id="winMessage" class="win-message">You Won!</div>
 
     <script>
         const dates = [
-            '1969', '1989', '2007', '1991', '1994',
-            '2000', '1997', '2004', '2010', '2017'
+            '1969', '1989', '2007', '1994',
+            '1776', '1914', '1492', '1945',
+            '1963', '1980', '2020', '1865'
         ];
 
         const events = [
-            'The Moon Landing', 'The Fall of the Berlin Wall', 'The Launch of the First iPhone',
-            'Windows 95 Release', 'The First Text Message Sent', 'Y2K Scare',
-            'The Creation of Google', 'Facebook Founded', 'Mars Rover Landing',
-            'Bitcoin Launch'
+            'The Moon Landing',
+            'The Fall of the Berlin Wall',
+            'The Launch of the First iPhone',
+            'The First Text Message Sent',
+            'American Independence',
+            'Start of World War I',
+            'Columbus Discovers America',
+            'End of World War II',
+            'Martin Luther King’s "I Have a Dream" Speech',
+            'Mount St. Helens Eruption',
+            'COVID-19 Pandemic',
+            'Abolition of Slavery in the US'
         ];
+
+        const dateEventMap = {
+            '1969': 'The Moon Landing',
+            '1989': 'The Fall of the Berlin Wall',
+            '2007': 'The Launch of the First iPhone',
+            '1994': 'The First Text Message Sent',
+            '1776': 'American Independence',
+            '1914': 'Start of World War I',
+            '1492': 'Columbus Discovers America',
+            '1945': 'End of World War II',
+            '1963': 'Martin Luther King’s "I Have a Dream" Speech',
+            '1980': 'Mount St. Helens Eruption',
+            '2020': 'COVID-19 Pandemic',
+            '1865': 'Abolition of Slavery in the US'
+        };
 
         const dateContainer = document.getElementById('dates');
         const eventContainer = document.getElementById('events');
+        const winMessage = document.getElementById('winMessage');
 
-        let shuffledDates = [];
         let shuffledEvents = [];
 
-        // Initialize the game
         function initGame() {
-            shuffledDates = [...dates];
-            shuffledEvents = [...events];
+            shuffledEvents = [...events].sort(() => Math.random() - 0.5);
 
-            // Populate dates
             dateContainer.innerHTML = '';
-            shuffledDates.forEach((date, index) => {
+            dates.forEach((date) => {
                 const dateBox = document.createElement('div');
                 dateBox.className = 'date-box';
                 dateBox.dataset.date = date;
-                dateBox.dataset.index = index;
                 dateBox.ondragover = allowDrop;
                 dateBox.ondrop = dropEvent;
-                dateBox.innerHTML = `<strong>${date}</strong><div class="event-slot" id="slot-${index}"></div>`;
+                dateBox.innerHTML = `
+                    <strong>${date}</strong>
+                    <div class="event-slot"></div>
+                    <div class="incorrect-message">Incorrect!</div>
+                `;
                 dateContainer.appendChild(dateBox);
             });
 
-            // Populate events
             eventContainer.innerHTML = '';
-            shuffledEvents.forEach((event, index) => {
+            shuffledEvents.forEach((event) => {
                 const eventBox = document.createElement('div');
                 eventBox.className = 'event-box';
                 eventBox.draggable = true;
                 eventBox.dataset.event = event;
-                eventBox.dataset.index = index;
                 eventBox.ondragstart = dragEvent;
                 eventBox.innerText = event;
                 eventContainer.appendChild(eventBox);
             });
         }
 
-        // Shuffle dates and events
-        function shuffleEvents() {
-            shuffledDates.sort(() => Math.random() - 0.5);
-            shuffledEvents.sort(() => Math.random() - 0.5);
-
-            initGame();
-        }
-
-        // Allow drag-and-drop
         function allowDrop(event) {
             event.preventDefault();
         }
 
-        // Drag event
         function dragEvent(event) {
-            event.dataTransfer.setData('text/plain', event.target.dataset.index);
+            event.dataTransfer.setData('text/plain', event.target.dataset.event);
         }
 
-        // Drop event
         function dropEvent(event) {
             event.preventDefault();
-            const eventIndex = event.dataTransfer.getData('text/plain');
-            const draggedEvent = document.querySelector(`.event-box[data-index='${eventIndex}']`);
+            const draggedEvent = event.dataTransfer.getData('text/plain');
             const targetDateBox = event.target.closest('.date-box');
 
             if (targetDateBox) {
+                const targetDate = targetDateBox.dataset.date;
                 const slot = targetDateBox.querySelector('.event-slot');
-                const correctDate = dates[draggedEvent.dataset.index];
+                const incorrectMessage = targetDateBox.querySelector('.incorrect-message');
 
-                // Check if event matches date
-                if (targetDateBox.dataset.date === correctDate) {
-                    slot.innerText = draggedEvent.innerText; // Place event under the date
-                    slot.classList.add('correct'); // Optional: visually mark as correct
-                    draggedEvent.remove(); // Remove event from events list
+                if (dateEventMap[targetDate] === draggedEvent) {
+                    slot.innerText = draggedEvent;
+                    slot.classList.add('correct');
+                    const eventElement = document.querySelector(`.event-box[data-event='${draggedEvent}']`);
+                    if (eventElement) {
+                        eventElement.remove();
+                    }
+                    incorrectMessage.style.display = 'none';
                 } else {
-                    alert('Incorrect! Try again.');
+                    incorrectMessage.style.display = 'block';
+                    setTimeout(() => (incorrectMessage.style.display = 'none'), 2000);
                 }
+
+                checkWin();
             }
         }
 
-        // Initialize the game on load
+        function checkWin() {
+            const remainingEvents = document.querySelectorAll('.event-box');
+            if (remainingEvents.length === 0) {
+                winMessage.style.display = 'block';
+            }
+        }
+
         initGame();
     </script>
 </body>
