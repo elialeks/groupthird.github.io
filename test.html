@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronology Game</title>
+    <title>Chronolssssy Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -143,18 +143,20 @@
 
         /* Mobile-friendly adjustments */
         @media (max-width: 600px) {
+            .game-container {
+                flex-direction: column;
+                height: 100%;
+            }
+
             .left-panel {
                 width: 100%;
-                overflow-y: auto;
                 padding: 0;
-                border-right: none;
                 margin-bottom: 10px;
             }
 
             .right-panel {
                 width: 100%;
                 padding: 0;
-                overflow-y: auto;
             }
 
             .date-box, .event-box {
@@ -164,6 +166,30 @@
 
             .incorrect-message {
                 right: -90px;
+            }
+
+            .top-panel {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+                font-size: 18px;
+            }
+
+            .top-panel button {
+                margin-top: 10px;
+            }
+        }
+
+        /* Landscape mode */
+        @media (orientation: landscape) {
+            .game-container {
+                flex-direction: row;
+                height: 100%;
+            }
+
+            .left-panel, .right-panel {
+                width: 50%;
+                overflow-y: scroll;
             }
         }
     </style>
