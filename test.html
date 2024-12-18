@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronology Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .left-panel {
+            width: 30%;
+            background-color: #ffffff;
+            border-right: 2px solid #ddd;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            width: 70%;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dates, .events {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-box {
+            background-color: #e0e0e0;
+            border: 2px dashed #888;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .date-box.correct {
+            background-color: #a8e6a1; /* Green for correct */
+            border-color: #388e3c;
+        }
+
+        .event-slot {
+            margin-top: 10px;
+            background-color: #d3f9d8;
+            font-size: 14px;
+            border: 1px solid #388e3c;
+            border-radius: 5px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .event-box {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: grab;
+            text-align: center;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .event-box:hover {
+            transform: scale(1.05);
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Mobile-friendly */
+        @media (max-width: 600px) {
+            .left-panel {
+                width: 40%;
+            }
+
+            .right-panel {
+                width: 60%;
+            }
+
+            .date-box, .event-box {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <h2>Years</h2>
+        <div id="dates" class="dates">
+            <!-- Dates will be added dynamically -->
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <h2>Events</h2>
+        <div id="events" class="events">
+            <!-- Events will be added dynamically -->
+        </div>
+        <button class="button" onclick="shuffleEvents()">Shuffle</button>
+    </div>
+
+    <script>
+        const dates = [
+            '1969', '1989', '2007', '1991', '1994',
+            '2000', '1997', '2004', '2010', '2017'
+        ];
+
+        const events = [
+            'The Moon Landing', 'The Fall of the Berlin Wall', 'The Launch of the First iPhone',
+            'Windows 95 Release', 'The First Text Message Sent', 'Y2K Scare',
+            'The Creation of Google', 'Facebook Founded', 'Mars Rover Landing',
+            'Bitcoin Launch'
+        ];
+
+        const dateContainer = document.getElementById('dates');
+        const eventContainer = document.getElementById('events');
+
+        let shuffledDates = [];
+        let shuffledEvents = [];
+
+        // Initialize the game
+        function initGame() {
+            shuffledDates = [...dates];
+            shuffledEvents = [...events];
+
+            // Populate dates
+            dateContainer.innerHTML = '';
+            shuffledDates.forEach((date, index) => {
+                const dateBox = document.createElement('div');
+                dateBox.className = 'date-box';
+                dateBox.dataset.date = date;
+                dateBox.dataset.index = index;
+                dateBox.ondragover = allowDrop;
+                dateBox.ondrop = dropEvent;
+                dateBox.innerHTML = `<strong>${date}</strong><div class="event-slot" id="slot-${index}"></div>`;
+                dateContainer.appendChild(dateBox);
+            });
+
+            // Populate events
+            eventContainer.innerHTML = '';
+            shuffledEvents.forEach((event, index) => {
+                const eventBox = document.createElement('div');
+                eventBox.className = 'event-box';
+                eventBox.draggable = true;
+                eventBox.dataset.event = event;
+                eventBox.dataset.index = index;
+                eventBox.ondragstart = dragEvent;
+                eventBox.innerText = event;
+                eventContainer.appendChild(eventBox);
+            });
+        }
+
+        // Shuffle dates and events
+        function shuffleEvents() {
+            shuffledDates.sort(() => Math.random() - 0.5);
+            shuffledEvents.sort(() => Math.random() - 0.5);
+
+            initGame();
+        }
+
+        // Allow drag-and-drop
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        // Drag event
+        function dragEvent(event) {
+            event.dataTransfer.setData('text/plain', event.target.dataset.index);
+        }
+
+        // Drop event
+        function dropEvent(event) {
+            event.preventDefault();
+            const eventIndex = event.dataTransfer.getData('text/plain');
+            const draggedEvent = document.querySelector(`.event-box[data-index='${eventIndex}']`);
+            const targetDateBox = event.target.closest('.date-box');
+
+            if (targetDateBox) {
+                const slot = targetDateBox.querySelector('.event-slot');
+                const correctDate = dates[draggedEvent.dataset.index];
+
+                // Check if event matches date
+                if (targetDateBox.dataset.date === correctDate) {
+                    slot.innerText = draggedEvent.innerText; // Place event under the date
+                    slot.classList.add('correct'); // Optional: visually mark as correct
+                    draggedEvent.remove(); // Remove event from events list
+                } else {
+                    alert('Incorrect! Try again.');
+                }
+            }
+        }
+
+        // Initialize the game on load
+        initGame();
+    </script>
+</body>
+</html>
