@@ -53,8 +53,9 @@
         }
 
         .left-panel, .right-panel {
-            overflow-y: scroll;
             height: calc(100vh - 60px); /* Adjusted for the height of the top panel */
+            overflow-y: scroll;
+            position: relative;
         }
 
         .left-panel {
@@ -143,11 +144,17 @@
         /* Mobile-friendly adjustments */
         @media (max-width: 600px) {
             .left-panel {
-                width: 40%;
+                width: 100%;
+                overflow-y: auto;
+                padding: 0;
+                border-right: none;
+                margin-bottom: 10px;
             }
 
             .right-panel {
-                width: 60%;
+                width: 100%;
+                padding: 0;
+                overflow-y: auto;
             }
 
             .date-box, .event-box {
