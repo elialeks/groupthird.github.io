@@ -14,6 +14,7 @@ document.querySelectorAll('.note-header').forEach(header => {
 });
 
 
+
 const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
 // Show the button when the user scrolls down 100px
