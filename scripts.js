@@ -1,4 +1,4 @@
-document.querySelectorAll('.accordion-header').forEach(header => {
+document.querySelectorAll('.note-header').forEach(header => {
   header.addEventListener('click', () => {
     const content = header.nextElementSibling;
 
