@@ -3,352 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronolssssy Game</title>
+    <title>History Chronology Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
+            margin: 0;
             background-color: #f4f4f4;
         }
 
-        .top-panel {
+        #game-container {
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-		
-            font-size: 20px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-           position:fixed;
-            top: 0;
-            width: 100%;
-            z-index: 0;
+            width: 90%;
+            height: 92%;
         }
 
-        .top-panel button {
-            background-color: white;
-            color: #4CAF50;
-            border: none;
-            padding: 8px 16px;
-            font-size: 16px;
+        /* Years Section - 20% of screen height, horizontally scrollable */
+        #dates-container {
+            height: 22%;
+            overflow-x: auto;
+            <-- white-space: nowrap; --> /* Prevents wrapping, keeps years horizontal */
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+			align-items: center;
+        }
+
+        .draggable {
+            display: inline-block; /* Ensure elements are displayed inline */
+            padding: 8px;
+            margin: 6px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            width: 70px; /* Narrow width for years */
+            text-align: center;
+			
         }
 
-        .top-panel button:hover {
-            background-color: #ddd;
+        .draggable:active {
+            background-color: #d0d0d0;
         }
 
-        .game-container {
-            display: flex;
-            margin-top: 60px; /* To make space for the fixed top panel */
-            flex: 1;
-            width: 100%;
-        }
-
-        .left-panel, .right-panel {
-            height: calc(100vh - 60px); /* Adjusted for the height of the top panel */
+        /* Events Section - 80% of screen height */
+        #events-container {
+            height: 78%;
             overflow-y: scroll;
-            position: relative;
+            padding: 3px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
         }
 
-        .left-panel {
-            width: 30%;
-            background-color: #ffffff;
-            border-right: 2px solid #ddd;
-            padding: 10px;
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .droppable {
+            min-height: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .right-panel {
-            width: 70%;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .dates, .events {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .date-box {
-            background-color: #e0e0e0;
-            border: 2px dashed #888;
+            justify-content: center;
             padding: 15px;
-            text-align: center;
-            font-size: 16px;
-            border-radius: 8px;
-            position: relative;
-            cursor: pointer;
+            margin-bottom: 10px;
+			background-color: #d4edda;
+			border-radius:5px;
+			border: 1px solid #ccc;
+	    }
+
+        .droppable.correct {
+            background-color: #d4edda;
         }
 
-        .date-box.correct {
-            background-color: #a8e6a1; /* Green for correct */
-            border-color: #388e3c;
-        }
-
-        .incorrect-message {
-            color: red;
-            font-size: 14px;
-            position: absolute;
-            top: 50%;
-            right: -120px; /* Moves to the right of the date box */
-            transform: translateY(-50%);
-            display: none;
-        }
-
-        .event-box {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: grab;
-            text-align: center;
-            font-size: 16px;
-            transition: transform 0.2s ease;
-        }
-
-        .event-box:hover {
-            transform: scale(1.05);
-        }
-
-        .win-message {
-            color: green;
-            font-size: 24px;
+        .droppable .year {
+            font-size: 18px;
             font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #win-message {
             text-align: center;
-            position: fixed;
-            right: 50%;
-            top: 50%;
-            transform: translate(50%, -50%);
-            display: none; /* Initially hidden */
-            padding: 10px 20px;
-            background-color: white;
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Mobile-friendly adjustments */
-        @media (max-width: 600px) {
-            .game-container {
-                flex-direction: column;
-                height: 100%;
-            }
-
-            .left-panel {
-                width: 100%;
-                padding: 0;
-                margin-bottom: 10px;
-            }
-
-            .right-panel {
-                width: 100%;
-                padding: 0;
-            }
-
-            .date-box, .event-box {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .incorrect-message {
-                right: -90px;
-            }
-
-            .top-panel {
-                flex-direction: column;
-                align-items: center;
-                padding: 10px;
-                font-size: 18px;
-            }
-
-            .top-panel button {
-                margin-top: 10px;
-            }
-        }
-
-        /* Landscape mode */
-        @media (orientation: landscape) {
-            .game-container {
-                flex-direction: row;
-                height: 100%;
-            }
-
-            .left-panel, .right-panel {
-                width: 50%;
-                overflow-y: scroll;
-            }
+            font-size: 24px;
+            color: green;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="top-panel">
-        <span>Chronology Game</span>
-        <span>Drag & Drop the Events</span>
-        <button onclick="history.back()">Back</button>
-    </div>
-
-    <div class="game-container">
-        <div class="left-panel">
-            <div id="dates" class="dates"></div>
+    <div id="game-container">
+        <!-- Years Section -->
+        <div id="dates-container">
+            <div class="draggable" draggable="true" data-id="1">100</div>
+            <div class="draggable" draggable="true" data-id="2">222</div>
+			<div class="draggable" draggable="true" data-id="3">1776</div>
+            <div class="draggable" draggable="true" data-id="4">1969</div>
+			
+			<div class="draggable" draggable="true" data-id="1">1066</div>
+            <div class="draggable" draggable="true" data-id="2">1492</div>
+  			<div class="draggable" draggable="true" data-id="3">1776</div>
+            <div class="draggable" draggable="true" data-id="4">1969</div>
+			
+			<div class="draggable" draggable="true" data-id="1">1066</div>
+            <div class="draggable" draggable="true" data-id="2">1492</div>
+  			<div class="draggable" draggable="true" data-id="3">1776</div>
+            <div class="draggable" draggable="true" data-id="4">1969</div>
         </div>
 
-        <div class="right-panel">
-            <div id="events" class="events"></div>
+        <br>
+		
+        <div id="events-container">
+            <div class="droppable" data-id="1">Battle of Hastings</div>
+            <div class="droppable" data-id="2">Columbus Reaches America</div>
+            <div class="droppable" data-id="3">American Independence</div>
+            <div class="droppable" data-id="4">Apollo 11 Moon Landing</div>
+			
+			<div class="droppable" data-id="1">Battle of Hastings</div>
+            <div class="droppable" data-id="2">Columbus Reaches America</div>
+            <div class="droppable" data-id="3">American Independence</div>
+            <div class="droppable" data-id="4">Apollo 11 Moon Landing</div>
         </div>
     </div>
 
-    <div id="winMessage" class="win-message">You Won!</div>
+    <div id="win-message" style="display: none;">
+        <h2>You Won!</h2>
+    </div>
 
     <script>
-        const dates = [
-            '1969', '1989', '2007', '1994',
-            '1776', '1914', '1492', '1945',
-            '1963', '1865',            '1969', '1989', '2007', '1994',
-            '1776', '1914', '1492', '1945',
-            '1963', '1865'
-        ];
+        document.addEventListener('DOMContentLoaded', function () {
+            const draggableItems = document.querySelectorAll('.draggable');
+            const droppableItems = document.querySelectorAll('.droppable');
+            const winMessage = document.getElementById('win-message');
+            let correctMatches = 0;
 
-        const events = [
-            'The Moon Landing',
-            'The Fall of the Berlin Wall',
-            'The Launch of the First iPhone',
-            'The First Text Message Sent',
-            'American Independence',
-            'Start of World War I',
-            'Columbus Discovers America',
-            'End of World War II',
-            'Martin Luther King’s "I Have a Dream" Speech',
-            'Abolition of Slavery in the US',
-			            'The Moon Landing',
-            'The Fall of the Berlin Wall',
-            'The Launch of the First iPhone',
-            'The First Text Message Sent',
-            'American Independence',
-            'Start of World War I',
-            'Columbus Discovers America',
-            'End of World War II',
-            'Martin Luther King’s "I Have a Dream" Speech',
-            'Abolition of Slavery in the US'
-        ];
-
-        const dateEventMap = {
-            '1969': 'The Moon Landing',
-            '1989': 'The Fall of the Berlin Wall',
-            '2007': 'The Launch of the First iPhone',
-            '1994': 'The First Text Message Sent',
-            '1776': 'American Independence',
-            '1914': 'Start of World War I',
-            '1492': 'Columbus Discovers America',
-            '1945': 'End of World War II',
-            '1963': 'Martin Luther King’s "I Have a Dream" Speech',
-            '1865': 'Abolition of Slavery in the US',
-			'1969': 'The Moon Landing',
-            '1989': 'The Fall of the Berlin Wall',
-            '2007': 'The Launch of the First iPhone',
-            '1994': 'The First Text Message Sent',
-            '1776': 'American Independence',
-            '1914': 'Start of World War I',
-            '1492': 'Columbus Discovers America',
-            '1945': 'End of World War II',
-            '1963': 'Martin Luther King’s "I Have a Dream" Speech',
-            '1865': 'Abolition of Slavery in the US'
-			
-        };
-
-        const dateContainer = document.getElementById('dates');
-        const eventContainer = document.getElementById('events');
-        const winMessage = document.getElementById('winMessage');
-
-        let shuffledEvents = [];
-
-        function initGame() {
-            shuffledEvents = [...events].sort(() => Math.random() - 0.5);
-
-            dateContainer.innerHTML = '';
-            dates.forEach((date) => {
-                const dateBox = document.createElement('div');
-                dateBox.className = 'date-box';
-                dateBox.dataset.date = date;
-                dateBox.ondragover = allowDrop;
-                dateBox.ondrop = dropEvent;
-                dateBox.innerHTML = `
-                    <strong>${date}</strong>
-                    <div class="event-slot"></div>
-                    <div class="incorrect-message">Incorrect!</div>
-                `;
-                dateContainer.appendChild(dateBox);
+            // Shuffle the events to make it harder to guess
+            const shuffledEvents = Array.from(droppableItems);
+            shuffledEvents.sort(() => Math.random() - 0.5);
+            const eventsContainer = document.getElementById('events-container');
+            shuffledEvents.forEach(event => {
+                eventsContainer.appendChild(event);
             });
 
-            eventContainer.innerHTML = '';
-            shuffledEvents.forEach((event) => {
-                const eventBox = document.createElement('div');
-                eventBox.className = 'event-box';
-                eventBox.draggable = true;
-                eventBox.dataset.event = event;
-                eventBox.ondragstart = dragEvent;
-                eventBox.innerText = event;
-                eventContainer.appendChild(eventBox);
+            // Set up drag event listeners for draggable items (dates)
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text', e.target.dataset.id);
+                });
             });
-        }
 
-        function allowDrop(event) {
-            event.preventDefault();
-        }
+            // Set up drop event listeners for droppable items (events)
+            droppableItems.forEach(item => {
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Allow drop
+                });
 
-        function dragEvent(event) {
-            event.dataTransfer.setData('text/plain', event.target.dataset.event);
-        }
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedId = e.dataTransfer.getData('text');
+                    const targetId = item.dataset.id;
 
-        function dropEvent(event) {
-            event.preventDefault();
-            const draggedEvent = event.dataTransfer.getData('text/plain');
-            const targetDateBox = event.target.closest('.date-box');
+                    // Check if the date is correct for this event
+                    if (draggedId === targetId) {
+                        const yearText = document.querySelector(`.draggable[data-id="${draggedId}"]`).textContent;
 
-            if (targetDateBox) {
-                const targetDate = targetDateBox.dataset.date;
-                const slot = targetDateBox.querySelector('.event-slot');
-                const incorrectMessage = targetDateBox.querySelector('.incorrect-message');
+                        // Create a new element to show the year above the event
+                        const yearElement = document.createElement('div');
+                        yearElement.classList.add('year');
+                        yearElement.textContent = yearText;
 
-                if (dateEventMap[targetDate] === draggedEvent) {
-                    slot.innerText = draggedEvent;
-                    slot.classList.add('correct');
-                    const eventElement = document.querySelector(`.event-box[data-event='${draggedEvent}']`);
-                    if (eventElement) {
-                        eventElement.remove();
+                        item.prepend(yearElement); // Insert the year at the top of the event
+                        item.classList.add('correct');
+                        correctMatches++;
+
+                        // Disable further dragging of this date and remove it from the dates list
+                        const draggedElement = document.querySelector(`.draggable[data-id="${draggedId}"]`);
+                        draggedElement.setAttribute('draggable', 'false');
+                        draggedElement.style.display = 'none';  // Hide the matched year
+
+                        // Check if all events are matched
+                        if (correctMatches === droppableItems.length) {
+                            winMessage.style.display = 'block';
+                        }
+                    } else {
+                        // If the match is incorrect, we do not do anything, just prevent the drop
+                        alert('Incorrect match! Try again.');
                     }
-                    incorrectMessage.style.display = 'none';
-                } else {
-                    incorrectMessage.style.display = 'block';
-                    setTimeout(() => (incorrectMessage.style.display = 'none'), 2000);
-                }
-
-                checkWin();
-            }
-        }
-
-        function checkWin() {
-            const remainingEvents = document.querySelectorAll('.event-box');
-            if (remainingEvents.length === 0) {
-                winMessage.style.display = 'block';
-            }
-        }
-
-        initGame();
+                });
+            });
+        });
     </script>
 </body>
 </html>
