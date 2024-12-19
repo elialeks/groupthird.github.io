@@ -1,0 +1,136 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f9f9f9; /* Light neutral background */
+    color: #333333; /* Dark text for readability */
+}
+
+#top-panel {
+    height: 6%; /* 10% of screen height */
+    width: 100%; /* Full width */
+    background-color: #f3a712; /* Orange panel background */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensure elements are aligned on the left and center */
+    /* padding: 0 30px;  Add some horizontal padding */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.center-text {
+    font-size: 20px;
+    color: #ffffff; /* White text */
+    text-align: center;
+    flex: 1; /* Center align text */
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 90%;
+    height: 90%;
+}
+
+/* Years Section */
+#dates-container {
+    height: 22%;
+    overflow-x: auto;
+    padding: 5px;
+	padding-left:30px;
+    background-color: #fffbea; /* Light yellow background */
+    border: 2px solid #e6e6e6; /* Light gray border */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    align-items: center;
+	
+}
+
+.draggable {
+    display: inline-block;
+    padding: 8px;
+    margin: 6px;
+    background-color: #d4f4dd; /* Pale green */
+    border: 1px solid #b6e2c6; /* Soft green border */
+    border-radius: 5px;
+    color: #333333; /* Dark text */
+    font-weight: bold;
+    cursor: pointer;
+    width: 95px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.draggable:hover {
+    background-color: #b6e2c6; /* Slightly darker green on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.draggable:active {
+    background-color: #94d1a8; /* Even darker green when active */
+}
+
+/* Events Section */
+#events-container {
+    height: 75%;
+    overflow-y: scroll;
+    padding: 8px;
+    background-color: #fffbea; /* Light yellow background */
+    border: 2px solid #e6e6e6; /* Light gray border */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333333; /* Neutral dark text for headings */
+}
+
+.droppable {
+    min-height: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #ffeeba; /* Soft yellow for initial state */
+    border-radius: 5px;
+    border: 1px solid #ffd966; /* Vibrant yellow border */
+    color: #333333; /* Dark text */
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.droppable:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    background-color: #fff4cc; /* Lighter yellow on hover */
+}
+
+.droppable.correct {
+    background-color: #d4f4dd; /* Pale green for correct state */
+    border: 1px solid #b6e2c6; /* Soft green border */
+    color: #333333;
+}
+
+.droppable .year {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333333; /* Neutral dark text */
+}
+
+#win-message {
+    text-align: center;
+    font-size: 24px;
+    color: #00cc66; /* Vibrant green for success message */
+    margin-top: 30px;
+    font-weight: bold;
+}
